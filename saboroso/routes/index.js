@@ -19,10 +19,40 @@ router.get('/', function(req, res, next) {
       title: 'Restaurante Saboroso!',
       menus: results
   });
-  
+  });
+});
+
+router.get('/menus', function(req, res, next){
+
+  res.render('menus', {
+    title: 'menus - Restaurante Saboroso!'
   });
 
-  
 });
+
+router.get('/reservations', function(req, res, next){
+
+  res.render('reservations', {
+    title: 'reservations - Restaurante Saboroso!'
+  });
+
+});
+
+router.get('/services', function(req, res, next){
+
+  res.render('services', {
+    title: 'services - Restaurante Saboroso!'
+  });
+
+});
+
+router.get('/contacts', function(req, res, next){
+
+  res.render('contacts', {
+    title: 'contacts - Restaurante Saboroso!'
+  });
+
+});
+
 
 module.exports = router;
