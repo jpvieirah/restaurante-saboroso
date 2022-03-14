@@ -1,25 +1,25 @@
-let conn = require('./db');
+var conn = require('./db');
 let path = require('path');
 
 module.exports = {
 
-    getMenus(){
+    getMenus() {
 
         return new Promise((resolve, reject) => {
 
-    conn.query(`
-  
-    SELECT * FROM tb_menus ORDER BY title
+            conn.query(`
+                SELECT * FROM tb_menus ORDER BY id DESC
+            `, (err, result) => {
 
-  `, (err, results)=>{
+                if (err) {
 
-    if(err){
-    reject(err);
-    }
+                    reject(err);
 
-    resolve(results);
+                }
 
-  });
+                resolve(result);
+
+            });
 
         });
 
@@ -27,98 +27,90 @@ module.exports = {
 
     save(fields, files) {
 
-      return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-        fields.photo = `images/${path.parse(files.photo.path).base}`;
+            fields.photo = `images/${path.parse(files.photo.path).base}`;
 
-        let query, queryPhoto = '',  params = [
-          fields.title,
-          fields.description,
-          fields.price
+            let query, queryPhoto = '', params = [
+                fields.title,
+                fields.description,
+                fields.price,
+            ];
 
-        ];
+            if (files.photo.name) {
 
-        if(files.photo.name){
+                queryPhoto = ',photo = ?';
 
-          queryPhoto = ',photo = ?';
+                params.push(fields.photo)
 
-          params.push(fields.photo);
+            }
 
-        }
+            if (parseInt(fields.id) > 0) {
 
-        if(parseInt(fields.id) > 0) {
+                params.push(fields.id);
 
-          params.push(fields.id);
-          
-          query = `
-          
-            UPDATE tb_menus
-            SET title = ?,
-            description = ?,
-            price = ?,
-            ${ queryPhoto}
-            WHERE id = ?
-          `;
-        
-        }else {
+                query = `
+                    UPDATE tb_menus
+                    SET title = ?,
+                        description = ?,
+                        price = ?
+                        ${queryPhoto}
+                    WHERE id = ?
+                `;
 
-          if(!files.photo.name){
+            } else {
 
-            reject('Envie a foto do prato.');
+                if (!files.photo.name) {
 
-          }
+                    reject('Envie a foto do prato');
 
-          query = `
-          INSERT INTO tb_menus (title, description, price, photo)
-          VALUES(?, ?, ?, ?)
+                }
 
-          `;
+                query = ` 
+                    INSERT INTO tb_menus( title, description, price, photo)
+                    VALUES (?, ?, ?, ?)
+                `;
 
-        }
+            }
 
-        conn.query(query, params, (err, results) => {
+            conn.query(query, params, (err, results) => {
 
-          if(err) {
+                if (err) {
 
-            reject(err);
+                    reject(err);
 
-          } else {
+                } else {
 
-            resolve(results);
+                    resolve(results);
 
-          }
+                }
+
+            });
 
         });
-
-      });
 
     },
 
     delete(id) {
 
-      return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
-        conn.query(`
-          DELETE FROM tb_menus WHERE id = ?
-        
-        `, [
-          id
-          ], (err, results)=>{
+            conn.query(`
+                DELETE FROM tb_menus WHERE id = ?
+            `, [
+                id
+            ], (err, results) => {
 
-            if(err) {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(results);
+                }
+            
+            });
 
-              reject(err);
-
-            } else {
-
-              resolve(results);
-
-            }
-
-          });
-
-      });
+        });
 
     }
 
-};
+}

@@ -22,7 +22,7 @@
     <header class="main-header">
 
       <!-- Logo -->
-      <a href="index.html" class="logo">
+      <a href="/admin" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini">HCODE</span>
         <!-- logo for regular state and mobile devices -->
@@ -95,19 +95,14 @@
           <li class="header">MENU</li>
           <!-- Optionally, you can add icons to the links -->
           <% menus.forEach(function(menu){ %>
-          <li <% if (menu.active) {%>class="active"<% } %>>
-            <a href="<%= menu.href %>">
-              <i class="fa fa-<%= menu.icon %>"></i>
-              <span><%= menu.text %></span>
-            </a>
-          </li>
-          <% }); %>
-         
-        </ul>
-        <!-- /.sidebar-menu -->
+            <li <% if (menu.active) {%>class="active"<%}%>>
+                <a href="<%= menu.href %>">
+                  <i class="fa fa-<%= menu.icon %>"></i>
+                  <span><%= menu.text%></span>
+                </a>
+            </li>
+            <% }); %>
+              <!-- /.sidebar-menu -->
       </section>
       <!-- /.sidebar -->
     </aside>
-
-  
-    

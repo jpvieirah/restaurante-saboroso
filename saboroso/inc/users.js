@@ -1,156 +1,180 @@
-let conn = require('./db');
+
+const conn = require("./db")
 
 module.exports = {
 
-    render(req, res, error){
-
+    render(req, res, error) {
         res.render("admin/login", {
             body: req.body,
             error
-        });
-
+        })
     },
 
-    login(email, password){
+    login(email, password) {
 
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
             conn.query(`
                 SELECT * FROM tb_users WHERE email = ?
             `, [
+
                 email
-             ], (err, results)=>{
 
-                if(err) {
-                    reject(err);
+            ],
+                (err, results) => {
 
-                } else {
+                    if (err) {
 
-                    if (!results.length > 0) {
-                        reject("Usuário ou senha incorretos.");
+                        reject(err);
+
                     } else {
 
-                        let row = results[0];
+                        if (!results.length > 0) {
 
-                        if (row.password !== password) {
-                            reject("Usuário ou senha incorretos.");
-                        }   else {
+                            reject("Usuario ou senha incorretos")
 
-                            resolve(row);
+                        } else {
+
+                            let row = results[0]
+
+                            if (row.password !== password) {
+
+                                reject("Usuario ou senhas incorretos")
+
+                            } else {
+
+                                resolve(row);
+
+                            }
 
                         }
-
                     }
+                })
+        })
+    },
 
-                    
-
-                }
-
-             });
-
-        });
-
-    }, 
-
-    getUsers(){
+    getUsers() {
 
         return new Promise((resolve, reject) => {
 
-    conn.query(`
-  
-    SELECT * FROM tb_users ORDER BY name
+            conn.query(`
+                SELECT * FROM tb_users ORDER BY name
+            `, (err, result) => {
 
-  `, (err, results)=>{
+                if (err) {
 
-    if(err){
-    reject(err);
-    }
+                    reject(err);
 
-    resolve(results);
+                }
 
-  });
+                resolve(result);
+
+            });
 
         });
 
     },
 
-    save(fields, files) {
+    save(fields) {
 
-      return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-        let query, queryPhoto = '',  params = [
-          fields.name,
-          fields.email
+            let query, params = [
+                fields.name,
+                fields.email,
 
-        ];
+            ];
 
-        if(parseInt(fields.id) > 0) {
+            if (parseInt(fields.id) > 0) {
 
-          params.push(fields.id);
-          
-          query = `
-          
-            UPDATE tb_users
-            SET name = ?,
-            email = ?
-            WHERE id = ?
-          `;
-        
-        }else {
+                params.push(fields.id);
 
-          query = `
-          INSERT INTO tb_users (name, email, password)
-          VALUES(?, ?, ?)
+                query = `
+                    UPDATE tb_users
+                    SET name = ?,
+                        email = ?
+                    WHERE id = ?
+                `;
 
-          `;
+            } else {
 
-          params.push(fields.password);
+                query = ` 
+                    INSERT INTO tb_users( name, email, password)
+                    VALUES (?, ?, ?)
+                `;
 
-        }
+                params.push(fields.password);
+            }
 
-        conn.query(query, params, (err, results) => {
+            conn.query(query, params, (err, results) => {
 
-          if(err) {
+                if (err) {
 
-            reject(err);
+                    reject(err);
 
-          } else {
+                } else {
 
-            resolve(results);
+                    resolve(results);
 
-          }
+                }
+
+            });
 
         });
-
-      });
 
     },
 
     delete(id) {
 
-      return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
-        conn.query(`
-          DELETE FROM tb_users WHERE id = ?
-        
-        `, [
-          id
-          ], (err, results)=>{
+            conn.query(`
+                DELETE FROM tb_users WHERE id = ?
+            `, [
+                id
+            ], (err, results) => {
 
-            if(err) {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(results);
+                }
 
-              reject(err);
+            });
 
+        });
+
+    },
+    changePassword(req) {
+
+        return new Promise((s, r) => {
+
+            if (!req.fields.password) {
+                r('Preencha  a Senha.');
+            } else if (req.fields.password !== req.fields.passwordConfirm) {
+                r('As senhas não são iguais');
             } else {
 
-              resolve(results);
+                conn.query(`
+                    UPDATE tb_users SET password = ? WHERE id = ?`,
+                    [
+                        req.fields.password,
+                        req.fields.id
+                    ], (err, result) => {
+
+                        if (err) {
+                        
+                            r(err.message);
+                        
+                        } else {
+                        
+                            s(result)
+                        
+                        }
+                    
+                    });
 
             }
-
-          });
-
-      });
-
+        })
     }
-
-};
+}
